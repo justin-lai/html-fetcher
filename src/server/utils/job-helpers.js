@@ -1,14 +1,12 @@
-var redis = require('redis');
-var Queue = require('./queue.js');
+const redis = require('redis');
+const Queue = require('./queue.js');
 
-var client = redis.createClient();
-var jobsQueue = new Queue('jobs', client);
+const client = redis.createClient();
+const jobsQueue = new Queue('jobs', client);
 
-function createJob(req, res) {
-  var job = req.body.endpoint;
+export default const createJob = (req, res) => {
+  let job = req.body.endpoint;
   jobsQueue.push(JSON.stringify(job));
 
   res.send('ok\n');
 }
-
-module.exports = createJob;

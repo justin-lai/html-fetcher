@@ -78,9 +78,18 @@
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
-	        'p',
-	        null,
-	        ' Hello React!'
+	        'div',
+	        { id: 'user-form' },
+	        _react2.default.createElement(
+	          'label',
+	          { htmlFor: 'url' },
+	          'Enter a URL here:'
+	        ),
+	        _react2.default.createElement(
+	          'form',
+	          { method: 'POST' },
+	          _react2.default.createElement('input', { type: 'input', name: 'url' })
+	        )
 	      );
 	    }
 	  }]);
