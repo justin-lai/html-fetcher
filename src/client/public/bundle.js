@@ -59,6 +59,10 @@
 	
 	var _helpers = __webpack_require__(/*! ./api/helpers.js */ 175);
 	
+	var _JobTable = __webpack_require__(/*! ./components/JobTable.jsx */ 178);
+	
+	var _JobTable2 = _interopRequireDefault(_JobTable);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -76,11 +80,13 @@
 	    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(App).call(this, props));
 	
 	    _this.state = {
-	      url: ''
+	      url: '',
+	      jobs: []
 	    };
 	
 	    _this.handleUrlChange = _this.handleUrlChange.bind(_this);
 	    _this.handleSubmit = _this.handleSubmit.bind(_this);
+	    _this.updateStatus = _this.updateStatus.bind(_this);
 	    return _this;
 	  }
 	
@@ -92,30 +98,67 @@
 	  }, {
 	    key: 'handleSubmit',
 	    value: function handleSubmit(e) {
+	      var _this2 = this;
+	
 	      e.preventDefault();
-	      (0, _helpers.postJob)({ url: this.state.url });
+	      (0, _helpers.addJobToQueue)({ url: this.state.url }, function (job) {
+	        _this2.setState({
+	          jobs: _this2.state.jobs.concat([job])
+	        });
+	        console.log(_this2.state.jobs);
+	      });
+	    }
+	  }, {
+	    key: 'updateStatus',
+	    value: function updateStatus(job) {
+	      var _this3 = this;
+	
+	      if (job.completed) {
+	        (0, _helpers.goToSite)(job.jobId);
+	      } else {
+	        var status = (0, _helpers.getJobStatus)(job.jobId, function (status) {
+	          if (status) {
+	            var newState = _this3.state.jobs;
+	            for (var i in newState) {
+	              if (newState[i].jobId == job.jobId) {
+	                newState[i].html = job.html;
+	                newState[i].completed = true;
+	                break;
+	              }
+	            }
+	            _this3.setState({
+	              jobs: newState
+	            });
+	          }
+	        });
+	      }
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        { id: 'user-form' },
+	        null,
 	        _react2.default.createElement(
-	          'label',
-	          { htmlFor: 'url' },
-	          'Enter a URL here:'
+	          'div',
+	          { id: 'user-form' },
+	          _react2.default.createElement(
+	            'label',
+	            { htmlFor: 'url' },
+	            'Enter a URL here:'
+	          ),
+	          _react2.default.createElement(
+	            'form',
+	            { className: 'url-entry-form', onSubmit: this.handleSubmit },
+	            _react2.default.createElement('input', {
+	              type: 'text',
+	              name: 'url',
+	              onChange: this.handleUrlChange,
+	              placeholder: 'i.e. www.google.com' }),
+	            _react2.default.createElement('input', { type: 'submit', value: 'Submit' })
+	          )
 	        ),
-	        _react2.default.createElement(
-	          'form',
-	          { className: 'url-entry-form', onSubmit: this.handleSubmit },
-	          _react2.default.createElement('input', {
-	            type: 'text',
-	            name: 'url',
-	            onChange: this.handleUrlChange,
-	            placeholder: 'i.e. www.google.com' }),
-	          _react2.default.createElement('input', { type: 'submit', value: 'Submit' })
-	        )
+	        _react2.default.createElement(_JobTable2.default, { jobs: this.state.jobs, updateStatus: this.updateStatus })
 	      );
 	    }
 	  }]);
@@ -22026,16 +22069,20 @@
 	});
 	__webpack_require__(/*! isomorphic-fetch */ 176);
 	
-	var getJob = exports.getJob = function getJob(id) {
-	  fetch('/jobs', { credentials: 'same-origin' }).then(function (response) {
+	var getJobStatus = exports.getJobStatus = function getJobStatus(id, cb) {
+	  fetch('/jobs/' + id, { credentials: 'same-origin' }).then(function (response) {
 	    if (response.status >= 400) {
 	      throw new Error("Bad response from server");
 	    }
 	    return response.json();
+	  }).then(function (status) {
+	    console.log(status);
+	    console.log('JOB_ID-' + id + ' is ' + (status ? 'ready' : 'not ready'));
+	    if (cb) cb(status);
 	  });
 	};
 	
-	var postJob = exports.postJob = function postJob(data) {
+	var addJobToQueue = exports.addJobToQueue = function addJobToQueue(data, cb) {
 	  fetch('/jobs', {
 	    method: 'POST',
 	    headers: {
@@ -22046,11 +22093,23 @@
 	  }).then(function (response) {
 	    if (response.status >= 400) {
 	      throw new Error("Bad response from server");
-	    } else {
-	      console.log('URL added to Queue');
 	    }
+	    return response.json();
+	  }).then(function (data) {
+	    console.log('URL queued at JOB_ID-' + data.jobId);
+	    if (cb) cb(data);
 	  });
 	};
+	
+	// export const goToSite = id => {
+	//   fetch(`/redirect/${}`, { credentials: 'same-origin' })
+	//   .then(response => {
+	//     if (response.status >= 400) {
+	//       throw new Error("Bad response from server");
+	//     }
+	//     // return response.json();
+	//   })
+	// }
 
 /***/ },
 /* 176 */
@@ -22508,6 +22567,154 @@
 	  self.fetch.polyfill = true
 	})(typeof self !== 'undefined' ? self : this);
 
+
+/***/ },
+/* 178 */
+/*!************************************************!*\
+  !*** ./src/client/app/components/JobTable.jsx ***!
+  \************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	var _JobEntry = __webpack_require__(/*! ./JobEntry.jsx */ 179);
+	
+	var _JobEntry2 = _interopRequireDefault(_JobEntry);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var JobTable = function JobTable(_ref) {
+	  var jobs = _ref.jobs;
+	  var updateStatus = _ref.updateStatus;
+	  return _react2.default.createElement(
+	    'table',
+	    null,
+	    _react2.default.createElement(
+	      'thead',
+	      null,
+	      _react2.default.createElement(
+	        'tr',
+	        null,
+	        _react2.default.createElement(
+	          'th',
+	          null,
+	          'Job Id'
+	        ),
+	        _react2.default.createElement(
+	          'th',
+	          null,
+	          'Action'
+	        ),
+	        _react2.default.createElement(
+	          'th',
+	          null,
+	          'Url'
+	        )
+	      )
+	    ),
+	    _react2.default.createElement(
+	      'tbody',
+	      null,
+	      jobs.map(function (job) {
+	        return _react2.default.createElement(_JobEntry2.default, { key: job.jobId, job: job, updateStatus: updateStatus });
+	      })
+	    )
+	  );
+	};
+	
+	JobTable.propTypes = {
+	  jobs: _react.PropTypes.array.isRequired,
+	  updateStatus: _react.PropTypes.func.isRequired
+	};
+	
+	exports.default = JobTable;
+
+/***/ },
+/* 179 */
+/*!************************************************!*\
+  !*** ./src/client/app/components/JobEntry.jsx ***!
+  \************************************************/
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	var _react = __webpack_require__(/*! react */ 1);
+	
+	var _react2 = _interopRequireDefault(_react);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var JobEntry = function (_React$Component) {
+	  _inherits(JobEntry, _React$Component);
+	
+	  function JobEntry(props) {
+	    _classCallCheck(this, JobEntry);
+	
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(JobEntry).call(this, props));
+	  }
+	
+	  _createClass(JobEntry, [{
+	    key: 'render',
+	    value: function render() {
+	      var job = this.props.job;
+	      return _react2.default.createElement(
+	        'tr',
+	        null,
+	        _react2.default.createElement(
+	          'td',
+	          null,
+	          job.jobId
+	        ),
+	        _react2.default.createElement(
+	          'td',
+	          null,
+	          _react2.default.createElement(
+	            'a',
+	            {
+	              onClick: this.props.updateStatus.bind(null, this.props.job),
+	              href: job.completed ? '/redirect/' + job.jobId : '#'
+	            },
+	            job.completed ? 'Go To Site' : 'Check Status'
+	          )
+	        ),
+	        _react2.default.createElement(
+	          'td',
+	          null,
+	          job.url
+	        )
+	      );
+	    }
+	  }]);
+	
+	  return JobEntry;
+	}(_react2.default.Component);
+	
+	JobEntry.propTypes = {
+	  job: _react.PropTypes.object.isRequired,
+	  updateStatus: _react.PropTypes.func.isRequired
+	};
+	
+	exports.default = JobEntry;
 
 /***/ }
 /******/ ]);

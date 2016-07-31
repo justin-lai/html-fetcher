@@ -11,23 +11,33 @@ export const runJobs = () => {
     if (err) throw new Error(err);
 
     const jobId = job[1];
-    const urlCache = new Cache(`jobId-${jobId}`, client);
-    const urlBody;
-    urlCache.get((err, data) => {
-      urlBody = data.url;
-    })
 
-    request(`http://${urlBody}`, (error, response, html) => {
-      if (!error && response.statusCode == 200) {
-        urlCache.set({
-          url: urlBody,
-          html: html,
-          completed: true
-        });
-      }
+    client.get(`jobId-${jobId}`, (err, url) => {
+      request(`http://${url}`, (error, response, html) => {
+        if (!error && response.statusCode == 200) {
+          client.set(url, html);
+        }
+      })
     })
+    // let urlCache = new Cache(`jobId-${jobId}`, client);
+    
+    // urlCache.get((err, data) => {
+    //   const urlBody =  data.url;
+      
+    //   request(`http://${urlBody}`, (error, response, html) => {
+    //     if (!error && response.statusCode == 200) {
 
-    runJobs();
+    //       urlCache.set({
+    //         url: urlBody,
+    //         html: html,
+    //         completed: true
+    //       });
+    //     }
+    //   }) 
+
+      runJobs();  
+    // });
+    
   });
 };
 

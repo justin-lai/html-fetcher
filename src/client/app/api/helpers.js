@@ -1,16 +1,21 @@
 require('isomorphic-fetch');
 
-export const getJob = id => {
-  fetch('/jobs', { credentials: 'same-origin' })
+export const getJobStatus = (id, cb) => {
+  fetch(`/jobs/${id}`, { credentials: 'same-origin' })
   .then(response => {
     if (response.status >= 400) {
       throw new Error("Bad response from server");
     }
     return response.json();
-  });
+  })
+  .then(status => {
+    console.log(status)
+    console.log(`JOB_ID-${id} is ${status ? 'ready' : 'not ready'}`);
+    if (cb) cb(status)
+  })
 };
 
-export const postJob = data => {
+export const addJobToQueue = (data, cb) => {
   fetch('/jobs', {
     method: 'POST',
     headers: {
@@ -22,8 +27,21 @@ export const postJob = data => {
   .then(response => {
     if (response.status >= 400) {
       throw new Error("Bad response from server");
-    } else {
-      console.log('URL added to Queue')
     }
+    return response.json();
+  })
+  .then(data => {
+    console.log(`URL queued at JOB_ID-${data.jobId}`);
+    if (cb) cb(data);
   })
 };
+
+// export const goToSite = id => {
+//   fetch(`/redirect/${}`, { credentials: 'same-origin' })
+//   .then(response => {
+//     if (response.status >= 400) {
+//       throw new Error("Bad response from server");
+//     }
+//     // return response.json();
+//   })
+// }

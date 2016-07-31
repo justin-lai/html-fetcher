@@ -5,11 +5,10 @@ export default class Cache {
   }
 
   set(data) {
-    console.log(this.name);
-    this.client.hmset(this.name, data);
+    this.client.set(this.name, data);
   }
 
   get(callback) {
-    this.client.hgetall(this.name, callback);   
+    this.client.get(this.name, callback);   
   }
 }
