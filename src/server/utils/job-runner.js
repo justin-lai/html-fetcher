@@ -1,18 +1,29 @@
 import redis from 'redis';
 import Queue from './queue.js';
+import Cache from './cache.js';
 import request from 'request';
 
 const client = redis.createClient();
-const jobsQueue = new Queue('jobs', client);
+const jobQueue = new Queue('jobs', client);
 
 export const runJobs = () => {
-  jobsQueue.pop(function (err, job) {
+  jobQueue.pop(function (err, job) {
     if (err) throw new Error(err);
 
-    console.log(job);
-    request('http://' + job, function (error, response, body) {
+    const jobId = job[1];
+    const urlCache = new Cache(`jobId-${jobId}`, client);
+    const urlBody;
+    urlCache.get((err, data) => {
+      urlBody = data.url;
+    })
+
+    request(`http://${urlBody}`, (error, response, html) => {
       if (!error && response.statusCode == 200) {
-        console.log(body) // Show the HTML for the Google homepage. 
+        urlCache.set({
+          url: urlBody,
+          html: html,
+          completed: true
+        });
       }
     })
 
