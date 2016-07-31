@@ -1,14 +1,24 @@
-const redis = require('redis');
-const Queue = require('./queue.js');
+import redis from 'redis';
+import Queue from './queue.js';
+import request from 'request';
 
 const client = redis.createClient();
 const jobsQueue = new Queue('jobs', client);
 
-export default const runJobs = () => {
-  jobsQueue.pop(function (err, replies) {
+export const runJobs = () => {
+  jobsQueue.pop(function (err, job) {
     if (err) throw new Error(err);
 
-    console.log(replies);
+    console.log(job);
+    request('http://' + job, function (error, response, body) {
+      if (!error && response.statusCode == 200) {
+        console.log(body) // Show the HTML for the Google homepage. 
+      }
+    })
+
     runJobs();
   });
 };
+
+
+

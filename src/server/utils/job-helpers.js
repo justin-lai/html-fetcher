@@ -1,12 +1,13 @@
-const redis = require('redis');
-const Queue = require('./queue.js');
+import redis from 'redis';
+import Queue from './queue.js';
 
 const client = redis.createClient();
 const jobsQueue = new Queue('jobs', client);
 
-export default const createJob = (req, res) => {
-  let job = req.body.endpoint;
+export const createJob = (req, res) => {
+  let job = req.body.url;
   jobsQueue.push(JSON.stringify(job));
 
   res.send('ok\n');
 }
+
