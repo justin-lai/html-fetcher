@@ -81,6 +81,7 @@
 	
 	    _this.state = {
 	      url: '',
+	      message: 'This is a message',
 	      jobs: []
 	    };
 	
@@ -101,44 +102,51 @@
 	      var _this2 = this;
 	
 	      e.preventDefault();
-	      (0, _helpers.addJobToQueue)({ url: this.state.url }, function (job) {
-	        _this2.setState({
-	          jobs: _this2.state.jobs.concat([job])
+	      if (this.isValidUrl(this.state.url)) {
+	        (0, _helpers.addJobToQueue)({ url: this.state.url }, function (job) {
+	          _this2.setState({ jobs: _this2.state.jobs.concat([job]) });
 	        });
-	        console.log(_this2.state.jobs);
-	      });
+	      } else {
+	        this.setState({ message: 'Invalid URL - cannot add to queue' });
+	      }
 	    }
 	  }, {
 	    key: 'updateStatus',
 	    value: function updateStatus(job) {
 	      var _this3 = this;
 	
-	      if (job.completed) {
-	        (0, _helpers.goToSite)(job.jobId);
-	      } else {
-	        var status = (0, _helpers.getJobStatus)(job.jobId, function (status) {
-	          if (status) {
-	            var newState = _this3.state.jobs;
-	            for (var i in newState) {
-	              if (newState[i].jobId == job.jobId) {
-	                newState[i].html = job.html;
-	                newState[i].completed = true;
-	                break;
-	              }
+	      var status = (0, _helpers.getJobStatus)(job.jobId, function (status) {
+	        if (status) {
+	          var newState = _this3.state.jobs;
+	          for (var i in newState) {
+	            if (newState[i].jobId == job.jobId) {
+	              newState[i].html = job.html;
+	              newState[i].completed = true;
+	              break;
 	            }
-	            _this3.setState({
-	              jobs: newState
-	            });
 	          }
-	        });
-	      }
+	          _this3.setState({ jobs: newState });
+	        }
+	      });
+	    }
+	  }, {
+	    key: 'isValidUrl',
+	    value: function isValidUrl(url) {
+	      var rValidUrl = /^(?!mailto:)(?:(?:https?|ftp):\/\/)?(?:\S+(?::\S*)?@)?(?:(?:(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[0-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]+-?)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,})))|localhost)(?::\d{2,5})?(?:\/[^\s]*)?$/i;
+	
+	      return url.match(rValidUrl);
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
 	        'div',
-	        null,
+	        { className: 'container' },
+	        _react2.default.createElement(
+	          'h1',
+	          null,
+	          'Coding Challenge: HTML Fetcher with Job Queue'
+	        ),
 	        _react2.default.createElement(
 	          'div',
 	          { id: 'user-form' },
@@ -157,6 +165,11 @@
 	              placeholder: 'i.e. www.google.com' }),
 	            _react2.default.createElement('input', { type: 'submit', value: 'Submit' })
 	          )
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { id: 'status-message' },
+	          this.state.message
 	        ),
 	        _react2.default.createElement(_JobTable2.default, { jobs: this.state.jobs, updateStatus: this.updateStatus })
 	      );
@@ -22100,16 +22113,6 @@
 	    if (cb) cb(data);
 	  });
 	};
-	
-	// export const goToSite = id => {
-	//   fetch(`/redirect/${}`, { credentials: 'same-origin' })
-	//   .then(response => {
-	//     if (response.status >= 400) {
-	//       throw new Error("Bad response from server");
-	//     }
-	//     // return response.json();
-	//   })
-	// }
 
 /***/ },
 /* 176 */
@@ -22596,7 +22599,7 @@
 	  var updateStatus = _ref.updateStatus;
 	  return _react2.default.createElement(
 	    'table',
-	    null,
+	    { className: 'table-jobs' },
 	    _react2.default.createElement(
 	      'thead',
 	      null,
@@ -22605,17 +22608,17 @@
 	        null,
 	        _react2.default.createElement(
 	          'th',
-	          null,
+	          { className: 'row-id' },
 	          'Job Id'
 	        ),
 	        _react2.default.createElement(
 	          'th',
-	          null,
+	          { className: 'row-action' },
 	          'Action'
 	        ),
 	        _react2.default.createElement(
 	          'th',
-	          null,
+	          { className: 'row-url' },
 	          'Url'
 	        )
 	      )

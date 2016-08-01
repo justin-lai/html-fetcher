@@ -1,0 +1,36 @@
+#status-message {
+  color: red;
+  padding: 10px 0;
+}
+
+/* --------JOBS TABLE------------ */
+
+.table-jobs {
+  width: 500px;
+  table-layout: fixed;
+  white-space: nowrap;
+}
+
+.table-jobs th, tr {
+  text-align: center;
+  border-bottom: solid 1px black;
+}
+
+.table-jobs td {
+  padding: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.row-id {
+  width: 20%;
+}
+.row-action {
+  width: 30%;
+}
+.row-url {
+  width: 50%;
+}
+
+

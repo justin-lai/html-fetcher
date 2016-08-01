@@ -2,12 +2,12 @@ import React, { PropTypes } from 'react';
 import JobEntry from './JobEntry.jsx';
 
 const JobTable = ({ jobs, updateStatus }) => (
-  <table>
+  <table className="table-jobs">
     <thead>
     <tr>
-      <th>Job Id</th>
-      <th>Action</th>
-      <th>Url</th>
+      <th className="row-id">Job Id</th>
+      <th className="row-action">Action</th>
+      <th className="row-url">Url</th>
     </tr>
     </thead>
 

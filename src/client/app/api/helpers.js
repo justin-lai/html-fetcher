@@ -35,13 +35,3 @@ export const addJobToQueue = (data, cb) => {
     if (cb) cb(data);
   })
 };
-
-// export const goToSite = id => {
-//   fetch(`/redirect/${}`, { credentials: 'same-origin' })
-//   .then(response => {
-//     if (response.status >= 400) {
-//       throw new Error("Bad response from server");
-//     }
-//     // return response.json();
-//   })
-// }
