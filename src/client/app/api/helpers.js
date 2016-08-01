@@ -34,3 +34,21 @@ export const addJobToQueue = (data, cb) => {
     if (cb) cb(data);
   })
 };
+
+// export const changeWorkerFrequency = freq => {
+//   fetch('/jobs', {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     credentials: 'same-origin',
+//     body: JSON.stringify({ freq: freq })
+//   })
+//   .then(response => {
+//     if (response.status >= 400) {
+//       throw new Error("Bad response from server");
+//     } else {
+//       console.log(`Worker frequency updated to ${freq} ms`);
+//     }
+//   })
+// }

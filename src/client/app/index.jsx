@@ -19,7 +19,17 @@ class App extends React.Component {
   }
 
   handleUrlChange(e) {
-    this.setState({ url: e.target.value });
+    let message;
+    if (!this.isValidUrl(e.target.value)) {
+      message = 'Please enter a valid URL';
+    } else {
+      message = '';
+    }
+    this.setState({ 
+      url: e.target.value,
+      message: message 
+    });
+
   }
 
   handleSubmit(e) {
@@ -68,22 +78,37 @@ class App extends React.Component {
 
   render() {
     return (
-      <div className="container">
-        <h1>Coding Challenge: HTML Fetcher with Job Queue</h1>
-        <div id="user-form">
-          <label htmlFor="url">Enter a URL here:</label>
-          <form className="url-entry-form" onSubmit={this.handleSubmit} >
-            <input
-              type="text"
-              name="url"
-              onChange={this.handleUrlChange}
-              placeholder="i.e. www.google.com"></input>
-            <input type="submit" value="Submit" />
-          </form>
+      <section className="container">
+        <h1>Coding Challenge: HTML Fetcher</h1>
+        <div id="content">
+          <div id="user-form">
+            <label htmlFor="url">Enter a URL here:</label>
+            <form className="url-entry-form" onSubmit={this.handleSubmit} >
+              <input
+                type="text"
+                name="url"
+                onChange={this.handleUrlChange}
+                placeholder="i.e. www.google.com"></input>
+              <input type="submit" value="Submit" />
+            </form>
+            <h5 id="status-message">{this.state.message}</h5>
+          </div>
+          <JobTable jobs={this.state.jobs} updateStatus={this.updateStatus} />
         </div>
-        <div id="status-message">{this.state.message}</div>
-        <JobTable jobs={this.state.jobs} updateStatus={this.updateStatus} />
-      </div>
+        
+        <div id="info">
+          <h3>How To Use</h3>
+            <p>Enter a URL into the form below. Submitting the URL will add the URL to a job queue and return a Job ID.</p>
+            <p>A worker checks the job queue at a given frequency (5 sec) and processes the jobs in queue order. </p>
+            <p>You can check the status of any queued jobs by clicking "Check Status" under the actions column. If the job has been processed, you will have the option to view the cached HTML from the request.</p>
+          <h3>Technology Stack</h3>
+          <ul>
+            <li>Frontend: React, Webpack</li>
+            <li>Backend: Node, Express</li>
+            <li>Database: Redis (URL Cache and Job Queue)</li>
+          </ul>
+        </div>
+      </section>
     )
   }
 }

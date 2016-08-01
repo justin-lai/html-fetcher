@@ -94,7 +94,16 @@
 	  _createClass(App, [{
 	    key: 'handleUrlChange',
 	    value: function handleUrlChange(e) {
-	      this.setState({ url: e.target.value });
+	      var message = void 0;
+	      if (!this.isValidUrl(e.target.value)) {
+	        message = 'Please enter a valid URL';
+	      } else {
+	        message = '';
+	      }
+	      this.setState({
+	        url: e.target.value,
+	        message: message
+	      });
 	    }
 	  }, {
 	    key: 'handleSubmit',
@@ -151,38 +160,90 @@
 	    key: 'render',
 	    value: function render() {
 	      return _react2.default.createElement(
-	        'div',
+	        'section',
 	        { className: 'container' },
 	        _react2.default.createElement(
 	          'h1',
 	          null,
-	          'Coding Challenge: HTML Fetcher with Job Queue'
+	          'Coding Challenge: HTML Fetcher'
 	        ),
 	        _react2.default.createElement(
 	          'div',
-	          { id: 'user-form' },
+	          { id: 'content' },
 	          _react2.default.createElement(
-	            'label',
-	            { htmlFor: 'url' },
-	            'Enter a URL here:'
+	            'div',
+	            { id: 'user-form' },
+	            _react2.default.createElement(
+	              'label',
+	              { htmlFor: 'url' },
+	              'Enter a URL here:'
+	            ),
+	            _react2.default.createElement(
+	              'form',
+	              { className: 'url-entry-form', onSubmit: this.handleSubmit },
+	              _react2.default.createElement('input', {
+	                type: 'text',
+	                name: 'url',
+	                onChange: this.handleUrlChange,
+	                placeholder: 'i.e. www.google.com' }),
+	              _react2.default.createElement('input', { type: 'submit', value: 'Submit' })
+	            ),
+	            _react2.default.createElement(
+	              'h5',
+	              { id: 'status-message' },
+	              this.state.message
+	            )
+	          ),
+	          _react2.default.createElement(_JobTable2.default, { jobs: this.state.jobs, updateStatus: this.updateStatus })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { id: 'info' },
+	          _react2.default.createElement(
+	            'h3',
+	            null,
+	            'How To Use'
 	          ),
 	          _react2.default.createElement(
-	            'form',
-	            { className: 'url-entry-form', onSubmit: this.handleSubmit },
-	            _react2.default.createElement('input', {
-	              type: 'text',
-	              name: 'url',
-	              onChange: this.handleUrlChange,
-	              placeholder: 'i.e. www.google.com' }),
-	            _react2.default.createElement('input', { type: 'submit', value: 'Submit' })
+	            'p',
+	            null,
+	            'Enter a URL into the form below. Submitting the URL will add the URL to a job queue and return a Job ID.'
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'A worker checks the job queue at a given frequency (5 sec) and processes the jobs in queue order. '
+	          ),
+	          _react2.default.createElement(
+	            'p',
+	            null,
+	            'You can check the status of any queued jobs by clicking "Check Status" under the actions column. If the job has been processed, you will have the option to view the cached HTML from the request.'
+	          ),
+	          _react2.default.createElement(
+	            'h3',
+	            null,
+	            'Technology Stack'
+	          ),
+	          _react2.default.createElement(
+	            'ul',
+	            null,
+	            _react2.default.createElement(
+	              'li',
+	              null,
+	              'Frontend: React, Webpack'
+	            ),
+	            _react2.default.createElement(
+	              'li',
+	              null,
+	              'Backend: Node, Express'
+	            ),
+	            _react2.default.createElement(
+	              'li',
+	              null,
+	              'Database: Redis (URL Cache and Job Queue)'
+	            )
 	          )
-	        ),
-	        _react2.default.createElement(
-	          'div',
-	          { id: 'status-message' },
-	          this.state.message
-	        ),
-	        _react2.default.createElement(_JobTable2.default, { jobs: this.state.jobs, updateStatus: this.updateStatus })
+	        )
 	      );
 	    }
 	  }]);
@@ -22123,6 +22184,24 @@
 	    if (cb) cb(data);
 	  });
 	};
+	
+	// export const changeWorkerFrequency = freq => {
+	//   fetch('/jobs', {
+	//     method: 'POST',
+	//     headers: {
+	//       'Content-Type': 'application/json',
+	//     },
+	//     credentials: 'same-origin',
+	//     body: JSON.stringify({ freq: freq })
+	//   })
+	//   .then(response => {
+	//     if (response.status >= 400) {
+	//       throw new Error("Bad response from server");
+	//     } else {
+	//       console.log(`Worker frequency updated to ${freq} ms`);
+	//     }
+	//   })
+	// }
 
 /***/ },
 /* 176 */

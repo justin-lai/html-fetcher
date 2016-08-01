@@ -1,3 +1,23 @@
+section {
+  width: 95%;
+  margin: auto;
+  padding: 10px;
+}
+div#content {
+  float: left;
+  width: 55%;
+  min-height: 400px;
+  /*background-color: aqua;*/
+}
+
+div#info {
+  float: right;
+  width: 45%;
+  height: 400px;
+  /*background-color: red;*/
+  /*margin-left: 15%;*/
+}
+
 #status-message {
   color: red;
   padding: 10px 0;
@@ -6,7 +26,7 @@
 /* --------JOBS TABLE------------ */
 
 .table-jobs {
-  width: 500px;
+  width: 90%;
   table-layout: fixed;
   white-space: nowrap;
 }
