@@ -4,10 +4,10 @@
   "description": "a job queue whose workers fetch data from a URL and store the results in a database",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack -d --watch",
-    "build": "webpack -p",
-    "start": "babel-node src/server/server.js --presets es2015,stage-2"
+    "start": "nodemon src/server/server.js --exec babel-node --presets es2015,stage-2",
+    "build": "webpack -p && babel src/server -d dist --presets es2015,stage-2",
+    "serve": "node dist/server.js"
   },
   "repository": {
     "type": "git",
