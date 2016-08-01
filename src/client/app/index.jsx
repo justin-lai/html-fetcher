@@ -9,7 +9,7 @@ class App extends React.Component {
 
     this.state = {
       url: '',
-      message: 'This is a message',
+      message: '',
       jobs: []
     };
 
@@ -26,7 +26,10 @@ class App extends React.Component {
     e.preventDefault();
     if (this.isValidUrl(this.state.url)) {
       addJobToQueue({ url: this.state.url }, job => {
-        this.setState({ jobs: this.state.jobs.concat([job]) })
+        this.setState({ 
+          jobs: this.state.jobs.concat([job]),
+          message: `JOB-ID ${job.jobId} was added to queue`
+        })
       })
     } else {
       this.setState({ message: 'Invalid URL - cannot add to queue' });
@@ -34,9 +37,11 @@ class App extends React.Component {
   }
 
   updateStatus(job) {
-    const status = getJobStatus(job.jobId, status => {
+    getJobStatus(job.jobId, status => {
+      let newState = this.state.jobs;
+      let newMessage;
+
       if (status) {
-        let newState = this.state.jobs;
         for (var i in newState) {
           if (newState[i].jobId == job.jobId) {
             newState[i].html = job.html;
@@ -44,8 +49,14 @@ class App extends React.Component {
             break;
           }
         }
-        this.setState({ jobs: newState });
+        newMessage = `JOB-ID ${job.jobId} has been processed`;
+      } else {
+        newMessage = `JOB-ID ${job.jobId} has not yet been processed`
       }
+      this.setState({ 
+        jobs: newState,
+        message: newMessage
+      });
     });
   }
 

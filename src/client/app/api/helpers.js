@@ -9,7 +9,6 @@ export const getJobStatus = (id, cb) => {
     return response.json();
   })
   .then(status => {
-    console.log(status)
     console.log(`JOB_ID-${id} is ${status ? 'ready' : 'not ready'}`);
     if (cb) cb(status)
   })

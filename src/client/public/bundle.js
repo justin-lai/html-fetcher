@@ -81,7 +81,7 @@
 	
 	    _this.state = {
 	      url: '',
-	      message: 'This is a message',
+	      message: '',
 	      jobs: []
 	    };
 	
@@ -104,7 +104,10 @@
 	      e.preventDefault();
 	      if (this.isValidUrl(this.state.url)) {
 	        (0, _helpers.addJobToQueue)({ url: this.state.url }, function (job) {
-	          _this2.setState({ jobs: _this2.state.jobs.concat([job]) });
+	          _this2.setState({
+	            jobs: _this2.state.jobs.concat([job]),
+	            message: 'JOB-ID ' + job.jobId + ' was added to queue'
+	          });
 	        });
 	      } else {
 	        this.setState({ message: 'Invalid URL - cannot add to queue' });
@@ -115,9 +118,11 @@
 	    value: function updateStatus(job) {
 	      var _this3 = this;
 	
-	      var status = (0, _helpers.getJobStatus)(job.jobId, function (status) {
+	      (0, _helpers.getJobStatus)(job.jobId, function (status) {
+	        var newState = _this3.state.jobs;
+	        var newMessage = void 0;
+	
 	        if (status) {
-	          var newState = _this3.state.jobs;
 	          for (var i in newState) {
 	            if (newState[i].jobId == job.jobId) {
 	              newState[i].html = job.html;
@@ -125,8 +130,14 @@
 	              break;
 	            }
 	          }
-	          _this3.setState({ jobs: newState });
+	          newMessage = 'JOB-ID ' + job.jobId + ' has been processed';
+	        } else {
+	          newMessage = 'JOB-ID ' + job.jobId + ' has not yet been processed';
 	        }
+	        _this3.setState({
+	          jobs: newState,
+	          message: newMessage
+	        });
 	      });
 	    }
 	  }, {
@@ -22089,7 +22100,6 @@
 	    }
 	    return response.json();
 	  }).then(function (status) {
-	    console.log(status);
 	    console.log('JOB_ID-' + id + ' is ' + (status ? 'ready' : 'not ready'));
 	    if (cb) cb(status);
 	  });
